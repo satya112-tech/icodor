@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %} BlogPost {% endblock title %}
+
+{% block css %}
+/* Timestamp Box */
+.timestamp-box {
+display: inline-block;
+background: #e9f7ef; /* Light green background */
+color: #28a745; /* Success green text */
+padding: 2px 8px;
+border-radius: 5px;
+font-size: 12px;
+font-weight: bold;
+border: 1px solid #28a745;
+}
+
+/* Comment Section */
+.comment-box {
+background: #fff;
+border-radius: 10px;
+padding: 15px;
+box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* User Avatar */
+.user-avatar {
+width: 50px;
+height: 50px;
+border-radius: 50%;
+background: #f8f9fa;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+color: #6c757d;
+}
+{% endblock %}
+
+{% block body %}
+{% load humanize %}
+{% load extras %}
+<div class="container my-4">
+    <div class="blog-post p-4 shadow-lg rounded bg-light">
+        <h2 class="blog-post-title text-primary">{{ post.title }}</h2>
+        <p class="blog-post-meta text-muted">
+            <i class="fas fa-calendar-alt"></i> {{ post.timeStamp }} |
+            <i class="fas fa-user"></i> <a href="#" class="text-primary fw-bold">{{ post.author }}</a>
+            <i class="fas fa-eye text-secondary"></i> 
+            <span class="badge bg-primary text-white">{{ post.views }} views</span>
+        </p>
+        <div class="content p-3 bg-white rounded">
+            <p class="lead">{{ post.content|safe }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="container my-3">
+    <div class="card shadow-lg rounded-3 border-0">
+        <div class="card-body p-4">
+            <h3 class="text-primary fw-bold border-bottom pb-2">
+                <i class="fas fa-comments me-2"></i> Comments ({{ comments.count }})
+            </h3>
+
+            {% if user.is_authenticated %}
+            <h5 class="mt-2 text-secondary fw-semibold">
+                <i class="fas fa-edit me-2"></i> Post a Comment
+            </h5>
+            <form action="/blog/postComment" method="post" class="mt-3">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="comment" class="form-control shadow-sm rounded-pill px-3"
+                        placeholder="Write your comment here..." aria-label="Comment" required>
+                    <input type="hidden" name="postSno" value="{{ post.sno }}">
+                    <input type="hidden" name="parentSno" value="">
+                    <button type="submit" class="btn btn-primary rounded-pill ms-2 px-4">
+                        <i class="fas fa-paper-plane"></i> Submit
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning text-center mt-3 shadow-sm rounded-pill px-3" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Please login</strong> to post comment and reply.
+            </div>
+            {% endif %}
+
+            <div class="mt-3">
+                {% for comment in comments %}
+                <div class="comment-box mb-3 d-flex">
+                    <div class="user-avatar me-3">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="mb-1 fw-semibold text-primary">
+                                {{ comment.user.username }}
+                                <span class="timestamp-box text-success small">
+                                    {{ comment.timestamp|naturaltime}}</span>
+                            </p>
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-sm btn-outline-primary ms-auto rounded-pill px-3" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#replyBox{{ comment.sno }}"
+                                aria-expanded="false" aria-controls="replyBox{{ comment.sno }}">
+                                <i class="fas fa-reply me-1"></i> Reply
+                            </button>
+                            {% endif %}
+                        </div>
+                        <p class="text-muted mb-2">{{ comment.comment }}</p>
+                        {% if user.is_authenticated %}
+                        <div class="collapse mt-2" id="replyBox{{ comment.sno }}">
+                            <div class="card border-0 shadow-sm rounded p-3 bg-light">
+                                <form action="/blog/postComment" method="post">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="text" name="comment"
+                                            class="form-control shadow-sm rounded-pill px-3"
+                                            placeholder="Write your reply..." aria-label="Reply" required>
+                                        <input type="hidden" name="parentSno" value="{{ comment.sno }}">
+                                        <input type="hidden" name="postSno" value="{{post.sno}}">
+                                        <button type="submit" class="btn btn-primary rounded-pill ms-2 px-4">
+                                            <i class="fas fa-paper-plane"></i> Send
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="replies my-2 ms-5">
+                                {% for reply in replyDict|get_val:comment.sno %}
+                                <div class="d-flex align-items-start mb-3">
+                                    <!-- User Avatar -->
+                                    <div class="user-avatar me-3">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                            
+                                    <!-- Reply Content -->
+                                    <div class="w-100">
+                                        <div class="bg-white shadow-sm p-3 rounded-3 border">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="fw-semibold text-primary mb-1">
+                                                    {{ reply.user.username }}
+                                                    <span class="timestamp-box text-success small">{{ reply.timestamp|naturaltime }}</span>
+                                                </p>
+                                            </div>
+                                            <p class="text-muted mb-0">{{ reply.comment }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

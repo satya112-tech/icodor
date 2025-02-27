@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %} Home {% endblock title %}
+{% block homeactive %} active {% endblock homeactive %}
+{% block css %}
+.link-stylish {
+color: #007bff;
+font-weight: 600;
+text-decoration: none;
+position: relative;
+transition: color 0.3s ease;
+}
+
+.link-stylish::after {
+content: '';
+position: absolute;
+left: 0;
+bottom: -2px;
+width: 100%;
+height: 2px;
+background-color: #007bff;
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.3s ease;
+}
+
+.link-stylish:hover {
+color: #0056b3;
+}
+
+.link-stylish:hover::after {
+transform: scaleX(1);
+}
+{% endblock %}
+{% block body %}
+<div class="container my-3">
+    <div class="p-4 rounded shadow-sm bg-light text-center">
+        <h1 class="display-6 fw-bold text-dark mb-2">Welcome to icoder!</h1>
+        <p class="text-muted fs-5 mb-3">
+            Your go-to platform for coding tutorials, tips, and tech blogs!
+        </p>
+        <hr class="mb-3">
+        <p class="text-secondary">
+            Dive into a world of knowledge curated for developers of all levels. Whether you're a beginner or an expert,
+            there's something for everyone!
+        </p>
+        <a class="btn btn-primary btn-lg fw-semibold px-4" href="/blog" role="button">Explore Blogs</a>
+    </div>
+</div>
+<div class="container my-3">
+    <h2 class="fw-bold text-center text-uppercase mb-3" style="letter-spacing: 2px;">
+        Popular Blogposts
+        <span class="d-block mx-auto mt-2" style="width: 60px; height: 3px; background: #007bff;"></span>
+    </h2>
+    {% if top_post %}
+    <div
+        class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 my-3 position-relative">
+        <div class="col p-4 d-flex flex-column position-static">
+            <h3 class="mb-0">{{top_post.title}}</h3>
+            <strong class="d-inline-block mb-2 text-primary">Article  by {{top_post.author}}</strong>
+            <div class="mb-1 text-muted">{{top_post.timeStamp}}</div>
+            <p class="card-text mb-auto">{{top_post.content|safe| truncatechars:300}}</p>
+            <a href="/blog/{{top_post.slug}}" class="stretched-link link-stylish">Continue reading</a>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

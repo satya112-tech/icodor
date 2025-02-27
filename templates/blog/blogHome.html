@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %} BlogHome {% endblock title %}
+{% block blogactive %} active {% endblock blogactive %}
+{% block css %}
+{% endblock %}
+{% block body %}
+<div class="container my-3">
+    <h2 class="fw-bold text-center text-uppercase mb-3" style="letter-spacing: 1px;">
+        Coding Articles by icoder
+        <span class="d-block mx-auto mt-2" style="width: 60px; height: 3px; background: #007bff;"></span>
+    </h2>
+    {% for post in allPosts %}
+    <div
+        class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 my-3 position-relative">
+        <div class="col p-4 d-flex flex-column position-static">
+            <h3 class="mb-0">{{post.title}}</h3>
+            <strong class="d-inline-block mb-2 text-primary">Article  by {{post.author}}</strong>
+            <div class="mb-1 text-muted">{{post.timeStamp}}</div>
+            <p class="card-text mb-auto">{{post.content|safe| truncatechars:500}}</p>
+            <div class="my-2">
+                <a href="/blog/{{post.slug}}" role="button" class="btn btn-primary">Continue reading</a>
+            </div>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
